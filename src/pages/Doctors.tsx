@@ -1,117 +1,43 @@
-
-import { useState } from "react";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Clock, MapPin, Search, Star } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, MapPin, Star, Clock } from "lucide-react";
 
 const Doctors = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSpecialty, setSelectedSpecialty] = useState("all");
   const [selectedLocation, setSelectedLocation] = useState("all");
 
-  const doctors = [
-    {
-      id: 1,
-      name: "Dr. Sarah Johnson",
-      specialty: "Cardiology",
-      hospital: "City General Hospital",
-      experience: "15 years",
-      rating: 4.9,
-      location: "New York",
-      image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=face",
-      availability: "Available Today",
-      fees: "$150"
-    },
-    {
-      id: 2,
-      name: "Dr. Michael Chen",
-      specialty: "General Medicine",
-      hospital: "Metro Medical Center",
-      experience: "12 years",
-      rating: 4.8,
-      location: "Los Angeles",
-      image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&crop=face",
-      availability: "Available Tomorrow",
-      fees: "$120"
-    },
-    {
-      id: 3,
-      name: "Dr. Emily Rodriguez",
-      specialty: "Pediatrics",
-      hospital: "Children's Health Center",
-      experience: "10 years",
-      rating: 4.9,
-      location: "Chicago",
-      image: "https://images.unsplash.com/photo-1594824919066-4dac3dde0583?w=400&h=400&fit=crop&crop=face",
-      availability: "Available Today",
-      fees: "$100"
-    },
-    {
-      id: 4,
-      name: "Dr. James Wilson",
-      specialty: "Orthopedics",
-      hospital: "Sports Medicine Institute",
-      experience: "18 years",
-      rating: 4.7,
-      location: "Houston",
-      image: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=400&fit=crop&crop=face",
-      availability: "Available Next Week",
-      fees: "$200"
-    },
-    {
-      id: 5,
-      name: "Dr. Lisa Thompson",
-      specialty: "Dermatology",
-      hospital: "Skin Care Clinic",
-      experience: "8 years",
-      rating: 4.8,
-      location: "Miami",
-      image: "https://images.unsplash.com/photo-1527613426441-4da17471b66d?w=400&h=400&fit=crop&crop=face",
-      availability: "Available Today",
-      fees: "$130"
-    },
-    {
-      id: 6,
-      name: "Dr. Robert Kim",
-      specialty: "Neurology",
-      hospital: "Brain Health Center",
-      experience: "20 years",
-      rating: 4.9,
-      location: "Seattle",
-      image: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&h=400&fit=crop&crop=face",
-      availability: "Available Tomorrow",
-      fees: "$250"
-    }
-  ];
+  const filteredDoctors = doctors.filter((doctor) => {
+    const matchesSearch =
+      doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doctor.specialty.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSpecialty =
+      selectedSpecialty === "all" || doctor.specialty === selectedSpecialty;
+    const matchesLocation =
+      selectedLocation === "all" || doctor.location === selectedLocation;
 
-  const specialties = ["all", "Cardiology", "General Medicine", "Pediatrics", "Orthopedics", "Dermatology", "Neurology"];
-  const locations = ["all", "New York", "Los Angeles", "Chicago", "Houston", "Miami", "Seattle"];
-
-  const filteredDoctors = doctors.filter(doctor => {
-    const matchesSearch = doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doctor.specialty.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSpecialty = selectedSpecialty === "all" || doctor.specialty === selectedSpecialty;
-    const matchesLocation = selectedLocation === "all" || doctor.location === selectedLocation;
-    
     return matchesSearch && matchesSpecialty && matchesLocation;
   });
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
+    <>
       <main className="flex-1 py-8">
         <div className="container mx-auto px-4">
           {/* Search and Filter Section */}
           <div className="bg-card rounded-lg p-6 mb-8 shadow-sm border">
             <h1 className="text-3xl font-bold mb-6">Find Your Doctor</h1>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -122,36 +48,42 @@ const Doctors = () => {
                   className="pl-10"
                 />
               </div>
-              
-              <Select value={selectedSpecialty} onValueChange={setSelectedSpecialty}>
+
+              <Select
+                value={selectedSpecialty}
+                onValueChange={setSelectedSpecialty}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="All Specialties" />
                 </SelectTrigger>
                 <SelectContent>
-                  {specialties.map(specialty => (
+                  {specialties.map((specialty) => (
                     <SelectItem key={specialty} value={specialty}>
                       {specialty === "all" ? "All Specialties" : specialty}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              
-              <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+
+              <Select
+                value={selectedLocation}
+                onValueChange={setSelectedLocation}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="All Locations" />
                 </SelectTrigger>
                 <SelectContent>
-                  {locations.map(location => (
+                  {locations.map((location) => (
                     <SelectItem key={location} value={location}>
                       {location === "all" ? "All Locations" : location}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              
+
               <Button className="w-full">Search</Button>
             </div>
-            
+
             <p className="text-muted-foreground">
               Found {filteredDoctors.length} doctors matching your criteria
             </p>
@@ -160,7 +92,10 @@ const Doctors = () => {
           {/* Doctors Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredDoctors.map((doctor) => (
-              <Card key={doctor.id} className="hover:shadow-lg transition-shadow duration-300">
+              <Card
+                key={doctor.id}
+                className="hover:shadow-lg transition-shadow duration-300"
+              >
                 <CardContent className="p-6">
                   {/* Doctor Image */}
                   <div className="relative mb-4">
@@ -169,30 +104,46 @@ const Doctors = () => {
                       alt={doctor.name}
                       className="w-24 h-24 rounded-full mx-auto object-cover"
                     />
-                    <Badge 
-                      variant={doctor.availability.includes("Today") ? "default" : "secondary"}
+                    <Badge
+                      variant={
+                        doctor.availability.includes("Today")
+                          ? "default"
+                          : "secondary"
+                      }
                       className="absolute top-0 right-1/4 text-xs"
                     >
-                      {doctor.availability.includes("Today") ? "Available" : "Busy"}
+                      {doctor.availability.includes("Today")
+                        ? "Available"
+                        : "Busy"}
                     </Badge>
                   </div>
 
                   {/* Doctor Info */}
                   <div className="text-center mb-4">
-                    <h3 className="text-xl font-semibold mb-1">{doctor.name}</h3>
-                    <p className="text-primary font-medium">{doctor.specialty}</p>
-                    <p className="text-muted-foreground text-sm">{doctor.hospital}</p>
+                    <h3 className="text-xl font-semibold mb-1">
+                      {doctor.name}
+                    </h3>
+                    <p className="text-primary font-medium">
+                      {doctor.specialty}
+                    </p>
+                    <p className="text-muted-foreground text-sm">
+                      {doctor.hospital}
+                    </p>
                   </div>
 
                   {/* Rating and Experience */}
                   <div className="flex items-center justify-center space-x-4 mb-4">
                     <div className="flex items-center space-x-1">
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium">{doctor.rating}</span>
+                      <span className="text-sm font-medium">
+                        {doctor.rating}
+                      </span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">{doctor.experience}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {doctor.experience}
+                      </span>
                     </div>
                   </div>
 
@@ -202,7 +153,9 @@ const Doctors = () => {
                       <MapPin className="h-4 w-4" />
                       <span>{doctor.location}</span>
                     </div>
-                    <span className="font-medium text-foreground">{doctor.fees}</span>
+                    <span className="font-medium text-foreground">
+                      {doctor.fees}
+                    </span>
                   </div>
 
                   {/* Availability */}
@@ -218,9 +171,7 @@ const Doctors = () => {
                       </Button>
                     </Link>
                     <Link to={`/book/${doctor.id}`} className="flex-1">
-                      <Button className="w-full">
-                        Book Now
-                      </Button>
+                      <Button className="w-full">Book Now</Button>
                     </Link>
                   </div>
                 </CardContent>
@@ -230,16 +181,118 @@ const Doctors = () => {
 
           {filteredDoctors.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-xl text-muted-foreground">No doctors found matching your criteria.</p>
-              <p className="text-muted-foreground mt-2">Try adjusting your search filters.</p>
+              <p className="text-xl text-muted-foreground">
+                No doctors found matching your criteria.
+              </p>
+              <p className="text-muted-foreground mt-2">
+                Try adjusting your search filters.
+              </p>
             </div>
           )}
         </div>
       </main>
-
-      <Footer />
-    </div>
+    </>
   );
 };
 
 export default Doctors;
+
+const doctors = [
+  {
+    id: 1,
+    name: "Dr. Sarah Johnson",
+    specialty: "Cardiology",
+    hospital: "City General Hospital",
+    experience: "15 years",
+    rating: 4.9,
+    location: "New York",
+    image:
+      "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=face",
+    availability: "Available Today",
+    fees: "$150",
+  },
+  {
+    id: 2,
+    name: "Dr. Michael Chen",
+    specialty: "General Medicine",
+    hospital: "Metro Medical Center",
+    experience: "12 years",
+    rating: 4.8,
+    location: "Los Angeles",
+    image:
+      "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&crop=face",
+    availability: "Available Tomorrow",
+    fees: "$120",
+  },
+  {
+    id: 3,
+    name: "Dr. Emily Rodriguez",
+    specialty: "Pediatrics",
+    hospital: "Children's Health Center",
+    experience: "10 years",
+    rating: 4.9,
+    location: "Chicago",
+    image:
+      "https://images.unsplash.com/photo-1594824919066-4dac3dde0583?w=400&h=400&fit=crop&crop=face",
+    availability: "Available Today",
+    fees: "$100",
+  },
+  {
+    id: 4,
+    name: "Dr. James Wilson",
+    specialty: "Orthopedics",
+    hospital: "Sports Medicine Institute",
+    experience: "18 years",
+    rating: 4.7,
+    location: "Houston",
+    image:
+      "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=400&fit=crop&crop=face",
+    availability: "Available Next Week",
+    fees: "$200",
+  },
+  {
+    id: 5,
+    name: "Dr. Lisa Thompson",
+    specialty: "Dermatology",
+    hospital: "Skin Care Clinic",
+    experience: "8 years",
+    rating: 4.8,
+    location: "Miami",
+    image:
+      "https://images.unsplash.com/photo-1527613426441-4da17471b66d?w=400&h=400&fit=crop&crop=face",
+    availability: "Available Today",
+    fees: "$130",
+  },
+  {
+    id: 6,
+    name: "Dr. Robert Kim",
+    specialty: "Neurology",
+    hospital: "Brain Health Center",
+    experience: "20 years",
+    rating: 4.9,
+    location: "Seattle",
+    image:
+      "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&h=400&fit=crop&crop=face",
+    availability: "Available Tomorrow",
+    fees: "$250",
+  },
+];
+
+const specialties = [
+  "all",
+  "Cardiology",
+  "General Medicine",
+  "Pediatrics",
+  "Orthopedics",
+  "Dermatology",
+  "Neurology",
+];
+const locations = [
+  "all",
+  "New York",
+  "Los Angeles",
+  "Chicago",
+  "Houston",
+  "Miami",
+  "Seattle",
+];
