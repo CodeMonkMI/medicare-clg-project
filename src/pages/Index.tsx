@@ -15,8 +15,8 @@ import { Link } from "react-router-dom";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1 pt-20">
+    <>
+      <main className="flex-1">
         {/* Hero Section */}
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/30 to-secondary/20"></div>
@@ -194,7 +194,7 @@ const Index = () => {
           </div>
         </section>
       </main>
-    </div>
+    </>
   );
 };
 

@@ -1,7 +1,7 @@
-import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Stethoscope, Menu, X } from "lucide-react";
+import { Menu, Stethoscope, X } from "lucide-react";
 import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 export const Header = () => {
   const location = useLocation();
@@ -10,7 +10,6 @@ export const Header = () => {
   const navigation = [
     { name: "Home", href: "/" },
     { name: "Doctors", href: "/doctors" },
-    { name: "Book Appointment", href: "/appointment" },
     { name: "Contact", href: "/contact" },
   ];
 
@@ -91,7 +90,10 @@ export const Header = () => {
               ))}
               <div className="flex flex-col space-y-3 pt-6 border-t border-white/10">
                 <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-center rounded-full">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-center rounded-full"
+                  >
                     Login
                   </Button>
                 </Link>

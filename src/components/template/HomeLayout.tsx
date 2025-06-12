@@ -6,7 +6,7 @@ const HomeLayout: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <div>{children}</div>
+      <div className="pt-20">{children}</div>
       <Footer />
     </div>
   );
