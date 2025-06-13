@@ -1,161 +1,180 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
+import * as z from "zod";
 
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
-import { CalendarIcon, Clock, User, Phone, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDoctor, useSlots } from "@/store/doctorsStore";
+import { format } from "date-fns";
+import { CalendarIcon, Clock, User } from "lucide-react";
+
+const schema = z.object({
+  name: z.string().min(1, "Full name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(10, "Phone number is required"),
+  message: z.string().optional(),
+  time: z.string().min(1, "Please select a time slot"),
+  date: z.date({ required_error: "Please select a date" }),
+});
+
+type FormData = z.infer<typeof schema>;
 
 const BookAppointment = () => {
   const { doctorId } = useParams();
   const navigate = useNavigate();
-  const [date, setDate] = useState<Date>();
-  const [selectedTime, setSelectedTime] = useState("");
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: ""
+  const doctor = useDoctor(Number(doctorId));
+  const slots = useSlots(Number(doctorId));
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      message: "",
+      time: "",
+      date: null,
+    },
   });
+  const date = watch("date");
 
-  // Mock doctor data
-  const doctor = {
-    id: parseInt(doctorId || "1"),
-    name: "Dr. Sarah Johnson",
-    specialty: "Cardiology",
-    hospital: "City General Hospital",
-    image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=face",
-    fees: "$150"
-  };
+  const selectedTime = watch("time");
 
-  const availableTimes = [
-    "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
-    "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM", "04:00 PM", "04:30 PM"
-  ];
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = (data: FormData) => {
     console.log("Booking submitted:", {
       doctorId,
-      date,
-      time: selectedTime,
-      ...formData
+      ...data,
     });
     navigate("/confirmation");
   };
 
-  const isFormValid = formData.name && formData.email && formData.phone && date && selectedTime;
-
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
+    <>
       <main className="flex-1 py-8">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Book Appointment</h1>
-            <p className="text-muted-foreground">Schedule your consultation with {doctor.name}</p>
+            <p className="text-muted-foreground">
+              Schedule your consultation with {doctor?.name}
+            </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Doctor Info Card */}
             <div className="lg:col-span-1">
               <Card className="sticky top-8">
                 <CardContent className="p-6">
                   <div className="text-center">
                     <img
-                      src={doctor.image}
-                      alt={doctor.name}
+                      src={doctor?.image}
+                      alt={doctor?.name}
                       className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
                     />
-                    <h3 className="text-xl font-semibold mb-1">{doctor.name}</h3>
-                    <p className="text-primary mb-2">{doctor.specialty}</p>
-                    <p className="text-muted-foreground text-sm mb-4">{doctor.hospital}</p>
+                    <h3 className="text-xl font-semibold mb-1">
+                      {doctor?.name}
+                    </h3>
+                    <p className="text-primary mb-2">{doctor?.specialty}</p>
+                    <p className="text-muted-foreground text-sm mb-4">
+                      {doctor?.hospital}
+                    </p>
                     <div className="bg-primary/10 rounded-lg p-3">
-                      <p className="text-sm text-muted-foreground">Consultation Fee</p>
-                      <p className="text-2xl font-bold text-primary">{doctor.fees}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Consultation Fee
+                      </p>
+                      <p className="text-2xl font-bold text-primary">
+                        {doctor?.fees}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Booking Form */}
             <div className="lg:col-span-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Appointment Details</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Personal Information */}
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold flex items-center">
                         <User className="h-5 w-5 mr-2" />
                         Personal Information
                       </h3>
-                      
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="name">Full Name *</Label>
                           <Input
                             id="name"
-                            value={formData.name}
-                            onChange={(e) => handleInputChange("name", e.target.value)}
+                            {...register("name")}
                             placeholder="Enter your full name"
-                            required
                           />
+                          {errors.name && (
+                            <p className="text-sm text-red-500 mt-1">
+                              {errors.name.message}
+                            </p>
+                          )}
                         </div>
-                        
                         <div>
                           <Label htmlFor="phone">Phone Number *</Label>
                           <Input
                             id="phone"
                             type="tel"
-                            value={formData.phone}
-                            onChange={(e) => handleInputChange("phone", e.target.value)}
+                            {...register("phone")}
                             placeholder="Enter your phone number"
-                            required
                           />
+                          {errors.phone && (
+                            <p className="text-sm text-red-500 mt-1">
+                              {errors.phone.message}
+                            </p>
+                          )}
                         </div>
                       </div>
-                      
                       <div>
                         <Label htmlFor="email">Email Address *</Label>
                         <Input
                           id="email"
                           type="email"
-                          value={formData.email}
-                          onChange={(e) => handleInputChange("email", e.target.value)}
+                          {...register("email")}
                           placeholder="Enter your email address"
-                          required
                         />
+                        {errors.email && (
+                          <p className="text-sm text-red-500 mt-1">
+                            {errors.email.message}
+                          </p>
+                        )}
                       </div>
                     </div>
 
-                    {/* Appointment Scheduling */}
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold flex items-center">
                         <CalendarIcon className="h-5 w-5 mr-2" />
                         Schedule Appointment
                       </h3>
-                      
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <Label>Preferred Date *</Label>
@@ -172,68 +191,106 @@ const BookAppointment = () => {
                                 {date ? format(date, "PPP") : "Select a date"}
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
                               <Calendar
                                 mode="single"
                                 selected={date}
-                                onSelect={setDate}
-                                disabled={(date) => date < new Date()}
+                                onSelect={(val) => setValue("date", val)}
+                                disabled={(d) => d < new Date()}
                                 initialFocus
-                                className="p-3 pointer-events-auto"
                               />
                             </PopoverContent>
                           </Popover>
+                          {errors.date && (
+                            <p className="text-sm text-red-500 mt-1">
+                              {errors.date.message}
+                            </p>
+                          )}
                         </div>
-                        
+
                         <div>
                           <Label>Preferred Time *</Label>
-                          <Select value={selectedTime} onValueChange={setSelectedTime}>
+                          <Select
+                            value={selectedTime}
+                            onValueChange={(val) => setValue("time", val)}
+                          >
                             <SelectTrigger>
                               <Clock className="mr-2 h-4 w-4" />
                               <SelectValue placeholder="Select time slot" />
                             </SelectTrigger>
                             <SelectContent>
-                              {availableTimes.map((time) => (
-                                <SelectItem key={time} value={time}>
-                                  {time}
-                                </SelectItem>
-                              ))}
+                              {slots
+                                .map((slot) => slot.times)
+                                .flat(Infinity)
+                                .map((time: string) => (
+                                  <SelectItem key={Math.random()} value={time}>
+                                    {time}
+                                  </SelectItem>
+                                ))}
                             </SelectContent>
                           </Select>
+                          {errors.time && (
+                            <p className="text-sm text-red-500 mt-1">
+                              {errors.time.message}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
 
-                    {/* Additional Information */}
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Additional Information</h3>
-                      
+                      <h3 className="text-lg font-semibold">
+                        Additional Information
+                      </h3>
                       <div>
-                        <Label htmlFor="message">Reason for Visit / Message</Label>
+                        <Label htmlFor="message">
+                          Reason for Visit / Message
+                        </Label>
                         <Textarea
                           id="message"
-                          value={formData.message}
-                          onChange={(e) => handleInputChange("message", e.target.value)}
+                          {...register("message")}
                           placeholder="Please describe your symptoms or reason for the visit (optional)"
                           rows={4}
                         />
+                        {errors.message && (
+                          <p className="text-sm text-red-500 mt-1">
+                            {errors.message.message}
+                          </p>
+                        )}
                       </div>
                     </div>
 
-                    {/* Summary */}
                     {date && selectedTime && (
                       <div className="bg-muted/30 rounded-lg p-4">
-                        <h4 className="font-semibold mb-2">Appointment Summary</h4>
+                        <h4 className="font-semibold mb-2">
+                          Appointment Summary
+                        </h4>
                         <div className="space-y-1 text-sm">
-                          <p><span className="font-medium">Doctor:</span> {doctor.name}</p>
-                          <p><span className="font-medium">Date:</span> {format(date, "EEEE, MMMM do, yyyy")}</p>
-                          <p><span className="font-medium">Time:</span> {selectedTime}</p>
-                          <p><span className="font-medium">Consultation Fee:</span> {doctor.fees}</p>
+                          <p>
+                            <span className="font-medium">Doctor:</span>{" "}
+                            {doctor?.name}
+                          </p>
+                          <p>
+                            <span className="font-medium">Date:</span>{" "}
+                            {format(date, "EEEE, MMMM do, yyyy")}
+                          </p>
+                          <p>
+                            <span className="font-medium">Time:</span>{" "}
+                            {selectedTime}
+                          </p>
+                          <p>
+                            <span className="font-medium">
+                              Consultation Fee:
+                            </span>{" "}
+                            {doctor?.fees}
+                          </p>
                         </div>
                       </div>
                     )}
 
-                    {/* Submit Button */}
                     <div className="flex gap-4">
                       <Button
                         type="button"
@@ -243,11 +300,7 @@ const BookAppointment = () => {
                       >
                         Back
                       </Button>
-                      <Button
-                        type="submit"
-                        disabled={!isFormValid}
-                        className="flex-1"
-                      >
+                      <Button type="submit" className="flex-1">
                         Book Appointment
                       </Button>
                     </div>
@@ -258,9 +311,7 @@ const BookAppointment = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
-    </div>
+    </>
   );
 };
 
