@@ -64,7 +64,7 @@ const DoctorProfile = () => {
                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                     <span className="font-medium">{doctor.rating}</span>
                     <span className="text-muted-foreground">
-                      ({doctor.reviewCount} reviews)
+                      ({reviews.length} reviews)
                     </span>
                   </div>
                   <div className="flex items-center space-x-1">
@@ -216,27 +216,38 @@ const DoctorProfile = () => {
               <CardContent className="p-6">
                 <h3 className="text-xl font-semibold mb-6">Patient Reviews</h3>
                 <div className="space-y-6">
-                  {reviews.map((review, index) => (
-                    <div key={index} className="border-b pb-4 last:border-b-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-medium">{review.patient}</span>
-                          <div className="flex">
-                            {[...Array(review.rating)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className="h-4 w-4 fill-yellow-400 text-yellow-400"
-                              />
-                            ))}
+                  <div className="flex flex-wrap justify-between gap-y-3">
+                    {reviews.map((review, index) => (
+                      <Card
+                        key={index}
+                        className="border-b pb-4 w-[33%]  last:border-b-0"
+                      >
+                        <CardContent className="px-3 pt-2 pb-0">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-2">
+                              <span className="font-medium">
+                                {review.patient}
+                              </span>
+                              <div className="flex">
+                                {[...Array(review.rating)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className="h-4 w-4 fill-yellow-400 text-yellow-400"
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            <span className="text-muted-foreground text-sm">
+                              {review.date}
+                            </span>
                           </div>
-                        </div>
-                        <span className="text-muted-foreground text-sm">
-                          {review.date}
-                        </span>
-                      </div>
-                      <p className="text-muted-foreground">{review.comment}</p>
-                    </div>
-                  ))}
+                          <p className="text-muted-foreground">
+                            {review.comment}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
               </CardContent>
             </Card>
